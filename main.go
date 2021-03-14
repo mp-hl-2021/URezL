@@ -11,13 +11,13 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/linkCut", api.PostLinkCut).Methods(http.MethodPost)
-	router.HandleFunc("/customLink", api.PostCustomLink).Methods(http.MethodPost)
+	router.HandleFunc("/links/cut", api.PostLinkCut).Methods(http.MethodPost)
+	router.HandleFunc("/links/custom", api.PostCustomLink).Methods(http.MethodPost)
 	router.HandleFunc("/login", api.PostLogin).Methods(http.MethodPost)
 	router.HandleFunc("/register", api.PostRegister).Methods(http.MethodPost)
 	router.HandleFunc("/links", api.GetLinks).Methods(http.MethodGet)
-	router.HandleFunc("/deleteLink", api.PostDeleteLink).Methods(http.MethodPost)
-	router.HandleFunc("/changeAddress", api.PostChangeAddress).Methods(http.MethodPost)
+	router.HandleFunc("/links", api.PostDeleteLink).Methods(http.MethodDelete)
+	router.HandleFunc("/links", api.PostChangeAddress).Methods(http.MethodPatch)
 
 	server := http.Server{
 		Addr:         "localhost:8080",
