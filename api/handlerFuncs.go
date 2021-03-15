@@ -4,7 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
+
+type Link struct {
+	Link string
+	ShortenLink string
+	Lifetime time.Duration
+	UserId *int
+}
 
 type LinkCutRequest struct {
 	Link string `json:"link"`
@@ -25,7 +33,7 @@ type CustomLinkRequest struct {
 	Link string `json:"link"`
 	CustomName *string `json:"customName"`
 	Token string `json:"token"`
-	Lifetime *int `json:"lifetime"`
+	Lifetime *time.Duration `json:"lifetime"`
 }
 
 // Needs authorizations
