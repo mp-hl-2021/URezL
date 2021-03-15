@@ -6,12 +6,13 @@ import (
 	"net/http"
 )
 
-type Link struct {
+type LinkCutRequest struct {
 	Link string `json:"link"`
+	Token *string `json:"token"`
 }
 
 func PostLinkCut(w http.ResponseWriter, r *http.Request) {
-	l := Link{}
+	l := LinkCutRequest{}
 	err := json.NewDecoder(r.Body).Decode(&l)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -20,12 +21,16 @@ func PostLinkCut(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Generated link\n"))
 }
 
-type CustomLink struct {
+type CustomLinkRequest struct {
 	Link string `json:"link"`
-	CustomName string `json:"customName"`
+	CustomName *string `json:"customName"`
+	Token string `json:"token"`
+	Lifetime *int `json:"lifetime"`
 }
+
+// Needs authorizations
 func PostCustomLink(w http.ResponseWriter, r *http.Request) {
-	cl := CustomLink{}
+	cl := CustomLinkRequest{}
 	err := json.NewDecoder(r.Body).Decode(&cl)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -34,12 +39,12 @@ func PostCustomLink(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Generated custom link\n"))
 }
 
-type Login struct {
+type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 func PostLogin(w http.ResponseWriter, r *http.Request) {
-	l := Login{}
+	l := LoginRequest{}
 	err := json.NewDecoder(r.Body).Decode(&l)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -49,12 +54,12 @@ func PostLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 
-type Register struct {
+type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 func PostRegister(w http.ResponseWriter, r *http.Request) {
-	reg := Register{}
+	reg := RegisterRequest{}
 	err := json.NewDecoder(r.Body).Decode(&reg)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -63,18 +68,22 @@ func PostRegister(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Successfully registered\n"))
 }
 
+type GetLinksRequest struct {
+	Token string `json:"token"`
+}
 
-// Needs authorizations
+// Needs authorization
 func GetLinks(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Links list"))
 }
 
-type DeleteLink struct {
+type DeleteLinkRequest struct {
 	ShortenLink string `json:"shortenLink"`
+	Token string `json:"token"`
 }
-// Needs authorizations
-func PostDeleteLink(w http.ResponseWriter, r *http.Request) {
-	dl := DeleteLink{}
+// Needs authorization
+func DeleteLink(w http.ResponseWriter, r *http.Request) {
+	dl := DeleteLinkRequest{}
 	err := json.NewDecoder(r.Body).Decode(&dl)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -83,13 +92,14 @@ func PostDeleteLink(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Link deleted\n"))
 }
 
-type ChangeAddress struct {
+type ChangeAddressRequest struct {
 	OldCustomLink string `json:"oldCustomLink"`
 	NewLink string `json:"newLink"`
+	Token string `json:"token"`
 }
-// Needs authorizations
-func PostChangeAddress(w http.ResponseWriter, r *http.Request) {
-	ca := ChangeAddress{}
+// Needs authorization
+func ChangeAddress(w http.ResponseWriter, r *http.Request) {
+	ca := ChangeAddressRequest{}
 	err := json.NewDecoder(r.Body).Decode(&ca)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
