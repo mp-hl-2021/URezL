@@ -7,6 +7,12 @@ import (
 	"time"
 )
 
+
+func Redirect(w http.ResponseWriter, r *http.Request) {
+	// todo: change on redirection
+	w.Write([]byte("Redirect to real link\n"))
+}
+
 type Link struct {
 	Link string
 	ShortenLink string
@@ -86,7 +92,6 @@ func GetLinks(w http.ResponseWriter, r *http.Request) {
 }
 
 type DeleteLinkRequest struct {
-	ShortenLink string `json:"shortenLink"`
 	Token string `json:"token"`
 }
 // Needs authorization
@@ -101,7 +106,6 @@ func DeleteLink(w http.ResponseWriter, r *http.Request) {
 }
 
 type ChangeAddressRequest struct {
-	OldCustomLink string `json:"oldCustomLink"`
 	NewLink string `json:"newLink"`
 	Token string `json:"token"`
 }
