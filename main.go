@@ -10,13 +10,14 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/links/cut", api.PostLinkCut).Methods(http.MethodPost)
-	router.HandleFunc("/links/custom", api.PostCustomLink).Methods(http.MethodPost)
-	router.HandleFunc("/login", api.PostLogin).Methods(http.MethodPost)
-	router.HandleFunc("/register", api.PostRegister).Methods(http.MethodPost)
-	router.HandleFunc("/links", api.GetLinks).Methods(http.MethodGet)
-	router.HandleFunc("/links", api.DeleteLink).Methods(http.MethodDelete)
-	router.HandleFunc("/links", api.ChangeAddress).Methods(http.MethodPatch)
+	router.HandleFunc("/{shorten_link}", api.Redirect).Methods(http.MethodGet)
+	router.HandleFunc("/control/cut", api.PostLinkCut).Methods(http.MethodPost)
+	router.HandleFunc("/control/custom", api.PostCustomLink).Methods(http.MethodPost)
+	router.HandleFunc("/account/login", api.PostLogin).Methods(http.MethodPost)
+	router.HandleFunc("/account/register", api.PostRegister).Methods(http.MethodPost)
+	router.HandleFunc("/control/links", api.GetLinks).Methods(http.MethodGet)
+	router.HandleFunc("/control/links/{shorten_link}", api.DeleteLink).Methods(http.MethodDelete)
+	router.HandleFunc("/control/links/{shorten_link}", api.ChangeAddress).Methods(http.MethodPatch)
 
 	server := http.Server{
 		Addr:         "localhost:8080",
