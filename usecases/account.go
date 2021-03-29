@@ -3,10 +3,9 @@ package usecases
 import (
 	"URezL/accountstorage"
 	"URezL/auth"
-
-	"golang.org/x/crypto/bcrypt"
-
 	"errors"
+	"golang.org/x/crypto/bcrypt"
+	"strings"
 	"unicode"
 )
 
@@ -15,17 +14,15 @@ var (
 	ErrInvalidPasswordString = errors.New("password string contains invalid character")
 	ErrTooShortString        = errors.New("too short string")
 	ErrTooLongString         = errors.New("too long string")
-
-	ErrInvalidLogin    		 = errors.New("login not found")
-	ErrInvalidPassword 		 = errors.New("invalid password")
+	ErrAllCharactersAreUpper = errors.New("must low characters")
+	ErrAllCharactersAreLower = errors.New("must upper characters")
 )
 
-// TODO: change validation constants
 const (
-	minLoginLength    = 6
-	maxLoginLength    = 20
-	minPasswordLength = 14
-	maxPasswordLength = 48
+	minLoginLength    = 3
+	maxLoginLength    = 100
+	minPasswordLength = 5
+	maxPasswordLength = 100
 )
 
 type Account struct {
@@ -55,6 +52,7 @@ func (a *AccountUseCases) Register(login string, password string) (Account, erro
 	if err != nil {
 		return Account{}, err
 	}
+
 	acc, err := a.AccountStorage.CreateAccount(accountstorage.Credentials{
 		Login:    login,
 		Password: string(hashedPassword),
@@ -94,7 +92,6 @@ func (a *AccountUseCases) Logout() () {
 	panic("not implemented method")
 }
 
-// TODO: change validation rules
 func validateLogin(login string) error {
 	chars := 0
 	for _, r := range login {
@@ -112,11 +109,10 @@ func validateLogin(login string) error {
 	return nil
 }
 
-// TODO: change validation rules
 func validatePassword(password string) error {
 	chars := 0
 	for _, r := range password {
-		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) && !unicode.IsPunct(r){
 			return ErrInvalidPasswordString
 		}
 		chars++
@@ -126,6 +122,12 @@ func validatePassword(password string) error {
 	}
 	if chars > maxPasswordLength {
 		return ErrTooLongString
+	}
+	if strings.ToUpper(password) == password {
+		return ErrAllCharactersAreUpper
+	}
+	if strings.ToLower(password) == password {
+		return ErrAllCharactersAreLower
 	}
 	return nil
 }

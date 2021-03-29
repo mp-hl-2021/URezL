@@ -14,10 +14,9 @@ type Api struct {
 	LinkUseCases    usecases.LinkUseCasesInterface
 }
 
-func CreateApi(a usecases.AccountUseCasesInterface, l usecases.LinkUseCasesInterface) *Api {
+func CreateApi(a usecases.AccountUseCasesInterface) *Api {
 	return &Api{
 		AccountUseCases: a,
-		LinkUseCases:    l,
 	}
 }
 
@@ -94,6 +93,11 @@ func (a *Api) postLogin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	token, err := a.AccountUseCases.Login(l.Username, l.Password)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		//fmt.Println(err)
+		return
+	}
 	fmt.Println(token)
 	w.Write([]byte("Successfully logged in\n"))
 }
@@ -110,6 +114,11 @@ func (a * Api) postRegister(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	token, err := a.AccountUseCases.Register(reg.Username, reg.Password)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(token)
 	w.Write([]byte("Successfully registered\n"))
 }
