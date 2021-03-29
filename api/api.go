@@ -126,6 +126,7 @@ func (a *Api) getLinks(w http.ResponseWriter, r *http.Request) {
 type DeleteLinkRequest struct {
 	Token string `json:"token"`
 }
+
 // Needs authorization
 func (a *Api) deleteLink(w http.ResponseWriter, r *http.Request) {
 	dl := DeleteLinkRequest{}
@@ -133,7 +134,7 @@ func (a *Api) deleteLink(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	// TODO: get link from address
+	// todo: get link from address
 	a.LinkUseCases.DeleteLink("Todo: link from address")
 	w.Write([]byte("Link deleted\n"))
 }
@@ -142,6 +143,7 @@ type ChangeAddressRequest struct {
 	NewLink string `json:"newLink"`
 	Token string `json:"token"`
 }
+
 // Needs authorization
 func (a *Api) changeAddress(w http.ResponseWriter, r *http.Request) {
 	ca := ChangeAddressRequest{}
@@ -149,7 +151,7 @@ func (a *Api) changeAddress(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	// TODO: get link from address
+	// todo: get link from address
 	a.LinkUseCases.ChangeAddress("Todo: link from address")
 	w.Write([]byte("Link changed\n"))
 }

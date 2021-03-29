@@ -9,6 +9,8 @@ import (
 )
 
 func main() {
+	// TODO: try to test that authentication works as in demo project
+
 	service := api.CreateApi(&usecases.AccountUseCases{}, &usecases.LinkUseCases{})
 
 	server := http.Server{
