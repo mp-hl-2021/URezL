@@ -14,8 +14,8 @@ var (
 	ErrInvalidPasswordString = errors.New("password string contains invalid character")
 	ErrTooShortString        = errors.New("too short string")
 	ErrTooLongString         = errors.New("too long string")
-	ErrAllCharactersAreUpper = errors.New("must low characters")
-	ErrAllCharactersAreLower = errors.New("must upper characters")
+	ErrAllCharactersAreUpper = errors.New("must have low characters")
+	ErrAllCharactersAreLower = errors.New("must have upper characters")
 )
 
 const (
