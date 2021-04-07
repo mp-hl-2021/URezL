@@ -1,8 +1,8 @@
-package usecases
+package account
 
 import (
-	"URezL/accountstorage"
-	"URezL/auth"
+	"URezL/Internal/domain/account"
+	"URezL/Internal/service/token"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
@@ -29,19 +29,19 @@ type Account struct {
 	Id string
 }
 
-type AccountUseCasesInterface interface {
+type Interface interface {
 	Register(login, password string) (Account, error)
 	Login(login, password string) (string, error)
 	Authenticate(token string) (string, error)
 	Logout() ()
 }
 
-type AccountUseCases struct {
-	AccountStorage accountstorage.Interface
-	Auth           auth.Interface
+type UseCases struct {
+	AccountStorage account.Interface
+	Auth           token.Interface
 }
 
-func (a *AccountUseCases) Register(login string, password string) (Account, error) {
+func (a *UseCases) Register(login string, password string) (Account, error) {
 	if err := validateLogin(login); err != nil {
 		return Account{}, err
 	}
@@ -53,7 +53,7 @@ func (a *AccountUseCases) Register(login string, password string) (Account, erro
 		return Account{}, err
 	}
 
-	acc, err := a.AccountStorage.CreateAccount(accountstorage.Credentials{
+	acc, err := a.AccountStorage.CreateAccount(account.Credentials{
 		Login:    login,
 		Password: string(hashedPassword),
 	})
@@ -63,7 +63,7 @@ func (a *AccountUseCases) Register(login string, password string) (Account, erro
 	return Account{Id: acc.Id}, nil
 }
 
-func (a *AccountUseCases) Login(login string, password string) (string, error) {
+func (a *UseCases) Login(login string, password string) (string, error) {
 	if err := validateLogin(login); err != nil {
 		return "", err
 	}
@@ -84,11 +84,11 @@ func (a *AccountUseCases) Login(login string, password string) (string, error) {
 	return token, err
 }
 
-func (a *AccountUseCases) Authenticate(token string) (string, error) {
+func (a *UseCases) Authenticate(token string) (string, error) {
 	return a.Auth.UserIdByToken(token)
 }
 
-func (a *AccountUseCases) Logout() () {
+func (a *UseCases) Logout() () {
 	panic("not implemented method")
 }
 

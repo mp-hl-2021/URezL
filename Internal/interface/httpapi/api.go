@@ -1,7 +1,8 @@
-package api
+package httpapi
 
 import (
-	"URezL/usecases"
+	"URezL/Internal/usecases/account"
+	"URezL/Internal/usecases/link"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -10,11 +11,11 @@ import (
 )
 
 type Api struct {
-	AccountUseCases usecases.AccountUseCasesInterface
-	LinkUseCases    usecases.LinkUseCasesInterface
+	AccountUseCases account.Interface
+	LinkUseCases    link.Interface
 }
 
-func CreateApi(a usecases.AccountUseCasesInterface) *Api {
+func CreateApi(a account.Interface) *Api {
 	return &Api{
 		AccountUseCases: a,
 	}
@@ -40,19 +41,13 @@ func (a *Api) redirect(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Redirect to real link\n"))
 }
 
-type Link struct {
-	Link string
-	ShortenLink string
-	Lifetime time.Duration
-	UserId *int
-}
 
 type LinkCutRequest struct {
 	Link string `json:"link"`
 	Token *string `json:"token"`
 }
 
-func (a* Api) postLinkCut(w http.ResponseWriter, r *http.Request) {
+func (a*Api) postLinkCut(w http.ResponseWriter, r *http.Request) {
 	l := LinkCutRequest{}
 	err := json.NewDecoder(r.Body).Decode(&l)
 	if err != nil {
@@ -107,7 +102,7 @@ type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
-func (a * Api) postRegister(w http.ResponseWriter, r *http.Request) {
+func (a *Api) postRegister(w http.ResponseWriter, r *http.Request) {
 	reg := RegisterRequest{}
 	err := json.NewDecoder(r.Body).Decode(&reg)
 	if err != nil {

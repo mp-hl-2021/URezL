@@ -1,15 +1,14 @@
 package main
 
 import (
-	"URezL/accountstorage"
-	"URezL/auth"
-	"URezL/usecases"
+	"URezL/Internal/interface/httpapi"
+	"URezL/Internal/interface/memory/accountrepo"
+	"URezL/Internal/service/token"
+	"URezL/Internal/usecases/account"
 	"flag"
 	"io/ioutil"
 	"net/http"
 	"time"
-
-	"URezL/api"
 )
 
 func main() {
@@ -20,17 +19,17 @@ func main() {
 
 	privateKeyBytes, err := ioutil.ReadFile(*privateKeyPath)
 	publicKeyBytes, err := ioutil.ReadFile(*publicKeyPath)
-	a, err := auth.NewKeysRSA(privateKeyBytes, publicKeyBytes, 100*time.Minute)
+	a, err := token.NewKeysRSA(privateKeyBytes, publicKeyBytes, 100*time.Minute)
 	if err != nil {
 		panic(err)
 	}
 
-	accountUseCases := &usecases.AccountUseCases{
-		AccountStorage: accountstorage.NewMemory(),
-		Auth: a,
+	accountUseCases := &account.UseCases{
+		AccountStorage: accountrepo.NewMemory(),
+		Auth:           a,
 	}
 
-	service := api.CreateApi(accountUseCases)
+	service := httpapi.CreateApi(accountUseCases)
 
 	server := http.Server{
 		Addr:         "localhost:8080",
