@@ -1,6 +1,8 @@
 package link
 
-import "time"
+import (
+	"time"
+)
 
 type Link struct {
 	Link string
@@ -11,4 +13,6 @@ type Link struct {
 
 type Interface interface {
 	AddLink(link Link) (Link, error)
+	GetLinkByShorten(link string) (Link, error)
+	GetLinksByAccountId(accountId string) ([]Link, error)
 }

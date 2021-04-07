@@ -1,12 +1,5 @@
 package account
 
-import "errors"
-
-var (
-	ErrNotFound = errors.New("not found")
-	ErrAlreadyExist = errors.New("already exist")
-)
-
 type Account struct {
 	Id string
 	Credentials

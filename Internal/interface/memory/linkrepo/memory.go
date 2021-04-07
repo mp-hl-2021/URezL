@@ -1,22 +1,22 @@
 package linkrepo
 
 import (
-	"URezL/Internal/domain/account"
+	domain "URezL/Internal/domain"
 	"URezL/Internal/domain/link"
 	"sync"
 )
 
 type Memory struct {
 	oldLinkByNewLink    map[string]link.Link
-	linksByAccountId map[string]map[string]link.Link
-	mu              *sync.Mutex
+	linksByAccountId 	map[string]map[string]link.Link
+	mu              	*sync.Mutex
 }
 
 func NewMemory() *Memory {
 	return &Memory{
-		oldLinkByNewLink:    make(map[string]link.Link),
-		linksByAccountId: make(map[string]map[string]link.Link),
-		mu:              &sync.Mutex{},
+		oldLinkByNewLink:   make(map[string]link.Link),
+		linksByAccountId: 	make(map[string]map[string]link.Link),
+		mu:              	&sync.Mutex{},
 	}
 }
 
@@ -24,7 +24,7 @@ func (m* Memory) AddLink (lnk link.Link) (link.Link, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if _, ok := m.oldLinkByNewLink[lnk.ShortenLink]; ok {
-		return link.Link{}, account.ErrAlreadyExist
+		return link.Link{}, domain.ErrAlreadyExist
 	}
 	m.oldLinkByNewLink[lnk.ShortenLink] = lnk
 	if lnk.UserId != nil {
@@ -36,4 +36,28 @@ func (m* Memory) AddLink (lnk link.Link) (link.Link, error) {
 		m.linksByAccountId[*lnk.UserId] = accountLinks
 	}
 	return  lnk, nil
+}
+
+func (m* Memory) GetLinkByShorten (lnk string) (link.Link, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	l, ok := m.oldLinkByNewLink[lnk]
+	if !ok {
+		return link.Link{}, domain.ErrNotFound
+	}
+	return l, nil
+}
+
+func (m* Memory) GetLinksByAccountId(accountId string) ([]link.Link, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	lnks, ok := m.linksByAccountId[accountId]
+	if !ok {
+		return nil, domain.ErrNotFound
+	}
+	links := make([]link.Link, 0, len(lnks))
+	for _, val := range lnks {
+		links = append(links, val)
+	}
+	return links, nil
 }
