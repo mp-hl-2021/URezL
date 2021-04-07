@@ -1,7 +1,7 @@
 package linkrepo
 
 import (
-	domain "URezL/Internal/domain"
+	"URezL/Internal/domain"
 	"URezL/Internal/domain/link"
 	"sync"
 )
@@ -60,4 +60,11 @@ func (m* Memory) GetLinksByAccountId(accountId string) ([]link.Link, error) {
 		links = append(links, val)
 	}
 	return links, nil
+}
+
+func (m* Memory) CheckLinkExists(lnk string) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	_, ok := m.oldLinkByNewLink[lnk]
+	return ok
 }

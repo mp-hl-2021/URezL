@@ -1,6 +1,7 @@
 package accountrepo
 
 import (
+	"URezL/Internal/domain"
 	"URezL/Internal/domain/account"
 	"strconv"
 	"sync"
@@ -25,7 +26,7 @@ func (m *Memory) CreateAccount(cred account.Credentials) (account.Account, error
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if _, ok := m.accountsByLogin[cred.Login]; ok {
-		return account.Account{}, account.ErrAlreadyExist
+		return account.Account{}, domain.ErrAlreadyExist
 	}
 	a := account.Account{
 		Id: strconv.FormatUint(m.nextId, 16),
@@ -42,7 +43,7 @@ func (m *Memory) GetAccountById(id string) (account.Account, error) {
 	defer m.mu.Unlock()
 	a, ok := m.accountsById[id]
 	if !ok {
-		return a, account.ErrNotFound
+		return a, domain.ErrNotFound
 	}
 	return a, nil
 }
@@ -52,7 +53,7 @@ func (m *Memory) GetAccountByLogin(login string) (account.Account, error) {
 	defer m.mu.Unlock()
 	a, ok := m.accountsByLogin[login]
 	if !ok {
-		return a, account.ErrNotFound
+		return a, domain.ErrNotFound
 	}
 	return a, nil
 }

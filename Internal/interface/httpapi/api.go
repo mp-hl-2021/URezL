@@ -72,6 +72,7 @@ func (a *Api) postCustomLink(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
+
 	customLink, err := a.LinkUseCases.CustomLinkCut(cl.Link, cl.CustomName, cl.Lifetime)
 	fmt.Println(customLink)
 	w.Write([]byte("Generated custom link\n"))

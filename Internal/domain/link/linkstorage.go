@@ -15,4 +15,5 @@ type Interface interface {
 	AddLink(link Link) (Link, error)
 	GetLinkByShorten(link string) (Link, error)
 	GetLinksByAccountId(accountId string) ([]Link, error)
+	CheckLinkExists(link string) (bool, error)
 }
