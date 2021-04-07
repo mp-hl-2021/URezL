@@ -20,6 +20,7 @@ type Interface interface {
 type UseCases struct{}
 
 func (UseCases) LinkCut(link string) (string, error) {
+
 	panic("not implemented method")
 }
 
