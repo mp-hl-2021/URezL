@@ -3,8 +3,10 @@ package main
 import (
 	"URezL/Internal/interface/httpapi"
 	"URezL/Internal/interface/memory/accountrepo"
+	"URezL/Internal/interface/memory/linkrepo"
 	"URezL/Internal/service/token"
 	"URezL/Internal/usecases/account"
+	"URezL/Internal/usecases/link"
 	"flag"
 	"io/ioutil"
 	"net/http"
@@ -29,7 +31,11 @@ func main() {
 		Auth:           a,
 	}
 
-	service := httpapi.CreateApi(accountUseCases)
+	linkUseCases := &link.UseCases{
+		LinkStorage: linkrepo.NewMemory(),
+	}
+
+	service := httpapi.CreateApi(accountUseCases, linkUseCases)
 
 	server := http.Server{
 		Addr:         "localhost:8080",
