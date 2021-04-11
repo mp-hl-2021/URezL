@@ -2,10 +2,13 @@ package link
 
 import (
 	"URezL/Internal/domain/link"
+	"math/rand"
 	"time"
 )
 
 const basicLifetime = 100 * time.Minute
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
 
 type Link struct {
 	Link string
@@ -34,7 +37,7 @@ func (a *UseCases) GetLinkByShorten(lnk string) (string, error) {
 }
 
 func (a *UseCases) LinkCut(lnk string, accountId *string) (string, error) {
-	shortenLink := generateShortenLink(lnk)
+	shortenLink := generateShortenLink(a)
 	l, err := a.LinkStorage.AddLink(link.Link{
 			Link: lnk,
 			ShortenLink: shortenLink,
@@ -49,7 +52,7 @@ func (a *UseCases) LinkCut(lnk string, accountId *string) (string, error) {
 
 func (a *UseCases) CustomLinkCut(lnk string, customName *string, lifetime *time.Duration, accountId string) (string, error) {
 	if customName == nil {
-		tmp := generateShortenLink(lnk)
+		tmp := generateShortenLink(a)
 		customName = &tmp
 	}
 	if lifetime == nil {
@@ -93,7 +96,20 @@ func (a *UseCases) GetLinks(accountId string) ([]Link, error) {
 	return res, nil
 }
 
-func generateShortenLink(link string) (hash string) {
-	//TODO: add hash generation
-	 return "aaa"
+func generateShortenLink(a *UseCases) (hash string) {
+	curLength := 1
+	randString := RandStringBytes(curLength)
+	for  a.LinkStorage.CheckLinkExists(randString){
+		curLength += 1
+		randString = RandStringBytes(curLength)
+	}
+	return randString
+}
+
+func RandStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }
