@@ -38,10 +38,11 @@ func (a *UseCases) GetLinkByShorten(lnk string) (string, error) {
 
 func (a *UseCases) LinkCut(lnk string, accountId *string) (string, error) {
 	shortenLink := generateShortenLink(a)
+	dur := 100 * time.Second
 	l, err := a.LinkStorage.AddLink(link.Link{
 			Link:        lnk,
 			ShortenLink: shortenLink,
-			Lifetime:    100 * time.Second,
+			Lifetime:    &dur,
 			AccountId:   accountId,
 		})
 	if err != nil {
@@ -62,7 +63,7 @@ func (a *UseCases) CustomLinkCut(lnk string, customName *string, lifetime *time.
 	l, err := a.LinkStorage.AddLink(link.Link{
 		Link:        lnk,
 		ShortenLink: *customName,
-		Lifetime:    *lifetime,
+		Lifetime:    lifetime,
 		AccountId:   &accountId,
 	})
 	if err != nil {

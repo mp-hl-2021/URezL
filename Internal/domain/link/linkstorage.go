@@ -7,7 +7,7 @@ import (
 type Link struct {
 	Link        string
 	ShortenLink string
-	Lifetime    time.Duration
+	Lifetime    *time.Duration
 	AccountId   *string
 }
 
