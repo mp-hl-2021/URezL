@@ -26,8 +26,9 @@ CREATE TABLE oldLinkByNewLink
 DROP TABLE IF EXISTS linksByAccountId CASCADE;
 CREATE TABLE linksByAccountId
 (
-    accountId int primary key,
-    link varchar(255) not null,
+    accountId int not null,
+    newLink varchar(255) not null,
+    oldLink varchar(255) not null,
 
     createdAt timestamp without time zone default now(),
     updatedAt timestamp without time zone default now()

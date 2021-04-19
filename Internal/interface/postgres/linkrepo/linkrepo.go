@@ -33,8 +33,9 @@ const queryAddLinkWithUser = `
 const queryAddUserLink = `
 	INSERT INTO linksByAccountId(
 		accountId,
-		link
-	) VALUES ($1, $2)
+		newLink,
+		oldLink
+	) VALUES ($1, $2, $3)
 `
 
 func (p *Postgres) AddLink(lnk link.Link) (link.Link, error) {
@@ -53,7 +54,7 @@ func (p *Postgres) AddLink(lnk link.Link) (link.Link, error) {
 	}
 
 	if lnk.AccountId != nil {
-		row := p.conn.QueryRow(queryAddUserLink, lnk.AccountId, lnk.ShortenLink)
+		row := p.conn.QueryRow(queryAddUserLink, lnk.AccountId, lnk.ShortenLink, lnk.Link)
 		err := row.Scan()
 		if err != sql.ErrNoRows {
 			return link.Link{}, err
@@ -84,17 +85,25 @@ func (p *Postgres) GetLinkByShorten(lnk string) (link.Link, error) {
 
 const queryGetLinksByAccount = `
 	SELECT 
-		link
+		newLink,
+	    oldLink
 	FROM linksByAccountId
 	WHERE accountId = $1
 `
 
 func (p *Postgres) GetLinksByAccountId(accountId string) ([]link.Link, error) {
-	var links []link.Link
-	row := p.conn.QueryRow(queryGetLinksByAccount, accountId)
-	err := row.Scan(&links)
+	var links = make([]link.Link, 0)
+	row, err := p.conn.Query(queryGetLinksByAccount, accountId)
 	if err != nil {
-		return links, err
+		return nil, err
+	}
+	for row.Next() {
+		var newLink string
+		var oldLink string
+		if err := row.Scan(&newLink, &oldLink); err != nil {
+			return nil, err
+		}
+		links = append(links, link.Link{Link: oldLink, ShortenLink: newLink})
 	}
 	return links, nil
 }
@@ -114,33 +123,47 @@ func (p *Postgres) CheckLinkExists(lnk string) bool {
 	return true
 }
 
-const queryDeleteLink = `
+const queryDeleteLink1 = `
 	DELETE FROM oldLinkByNewLink
-	WHERE newLink = $1 AND accountId = $2;
+	WHERE newLink = $1 AND accountId = $2
+`
+const queryDeleteLink2 = `
 	DELETE FROM linksByAccountId
-	WHERE accountId = $2 AND link = $1
+	WHERE accountId = $2 AND newLink = $1
 `
 
 func (p *Postgres) DeleteLink(lnk string, accountId string) error {
-	row := p.conn.QueryRow(queryDeleteLink, lnk, accountId)
+	row := p.conn.QueryRow(queryDeleteLink1, lnk, accountId)
 	err := row.Scan()
+	if err != sql.ErrNoRows {
+		return err
+	}
+	row = p.conn.QueryRow(queryDeleteLink2, lnk, accountId)
+	err = row.Scan()
 	if err != sql.ErrNoRows {
 		return err
 	}
 	return nil
 }
-const queryChangeLink = `
+const queryChangeLink1 = `
 	UPDATE oldLinkByNewLink
 	SET newLink = $2
-	WHERE newLink = $1 and accountId = $3;
+	WHERE newLink = $1 and accountId = $3
+`
+const queryChangeLink2 = `
 	UPDATE linksByAccountId
-	SET link = $2
-	WHERE link = $1 AND accountId = $3
+	SET newLink = $2
+	WHERE newLink = $1 AND accountId = $3
 `
 
 func (p *Postgres) ChangeLink(oldLink string, newLink string, accountId string) error {
-	row := p.conn.QueryRow(queryChangeLink, oldLink, newLink, accountId)
+	row := p.conn.QueryRow(queryChangeLink1, oldLink, newLink, accountId)
 	err := row.Scan()
+	if err != sql.ErrNoRows {
+		return err
+	}
+	row = p.conn.QueryRow(queryChangeLink2, oldLink, newLink, accountId)
+	err = row.Scan()
 	if err != sql.ErrNoRows {
 		return err
 	}
