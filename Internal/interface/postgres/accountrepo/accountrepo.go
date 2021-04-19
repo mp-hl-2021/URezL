@@ -9,11 +9,7 @@ type Postgres struct{
 	conn *sql.DB
 }
 
-func New(connStr string) *Postgres{
-	conn, err := sql.Open("postgres", connStr)
-	if err != nil {
-		panic(err)
-	}
+func New(conn *sql.DB) *Postgres{
 	return &Postgres{conn: conn}
 }
 

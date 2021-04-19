@@ -7,6 +7,7 @@ import (
 	"URezL/Internal/service/token"
 	"URezL/Internal/usecases/account"
 	"URezL/Internal/usecases/link"
+	"database/sql"
 	_ "github.com/lib/pq"
 
 	"encoding/json"
@@ -44,13 +45,17 @@ func main() {
 	}
 
 	connStr := config.ConnectionString
+	conn, err := sql.Open("postgres", connStr)
+	if err != nil {
+		panic(err)
+	}
 	accountUseCases := &account.UseCases{
-		AccountStorage: accountrepo.New(connStr),
+		AccountStorage: accountrepo.New(conn),
 		Auth:           a,
 	}
 
 	linkUseCases := &link.UseCases{
-		LinkStorage: linkrepo.New(connStr),
+		LinkStorage: linkrepo.New(conn),
 	}
 
 	service := httpapi.CreateApi(accountUseCases, linkUseCases)

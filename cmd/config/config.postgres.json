@@ -1,0 +1,3 @@
+{
+  "connectionString": "user=<Username> password=<Password> host=<hostname> dbname=postgres sslmode=disable"
+}
