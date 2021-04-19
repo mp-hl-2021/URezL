@@ -27,7 +27,7 @@ const queryAddLinkWithUser = `
 		oldLink,
 	    lifetime,
 		accountId
-	) VALUES ($1, $2, $3)
+	) VALUES ($1, $2, $3, $4)
 `
 
 const queryAddUserLink = `
@@ -45,7 +45,7 @@ func (p *Postgres) AddLink(lnk link.Link) (link.Link, error) {
 			return link.Link{}, domain.ErrAlreadyExist
 		}
 	} else {
-		row := p.conn.QueryRow(queryAddLinkWithUser, lnk.ShortenLink, lnk.Link, lnk.Lifetime, lnk.AccountId)
+		row := p.conn.QueryRow(queryAddLinkWithUser, lnk.ShortenLink, lnk.Link, nil, lnk.AccountId)
 		err := row.Scan()
 		if err != sql.ErrNoRows {
 			return link.Link{}, domain.ErrAlreadyExist
