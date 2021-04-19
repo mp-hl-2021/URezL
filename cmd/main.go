@@ -29,7 +29,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	filename := "cmd/config/config.postgres.json"
 	file, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -61,7 +60,7 @@ func main() {
 	service := httpapi.CreateApi(accountUseCases, linkUseCases)
 
 	server := http.Server{
-		Addr:         "localhost:8080",
+		Addr:         ":8080",
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 
