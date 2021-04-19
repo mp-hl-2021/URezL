@@ -107,6 +107,7 @@ func generateShortenLink(a *UseCases) (hash string) {
 }
 
 func RandStringBytes(n int) string {
+	rand.Seed(time.Now().UTC().UnixNano())
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
