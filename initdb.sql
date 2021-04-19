@@ -16,6 +16,8 @@ CREATE TABLE oldLinkByNewLink
 (
     newLink varchar(255) primary key,
     oldLink varchar(255) not null,
+    lifetime int,
+    accountId int,
 
     createdAt timestamp without time zone default now(),
     updatedAt timestamp without time zone default now()
