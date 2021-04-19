@@ -2,8 +2,8 @@ package main
 
 import (
 	"URezL/Internal/interface/httpapi"
-	"URezL/Internal/interface/memory/linkrepo"
 	"URezL/Internal/interface/postgres/accountrepo"
+	"URezL/Internal/interface/postgres/linkrepo"
 	"URezL/Internal/service/token"
 	"URezL/Internal/usecases/account"
 	"URezL/Internal/usecases/link"
@@ -11,12 +11,10 @@ import (
 	"database/sql"
 	_ "github.com/lib/pq"
 
-
 	"flag"
 	"io/ioutil"
 	"net/http"
 	"time"
-
 )
 
 func main() {
@@ -45,7 +43,7 @@ func main() {
 	}
 
 	linkUseCases := &link.UseCases{
-		LinkStorage: linkrepo.NewMemory(),
+		LinkStorage: linkrepo.New(conn),
 	}
 
 	service := httpapi.CreateApi(accountUseCases, linkUseCases)

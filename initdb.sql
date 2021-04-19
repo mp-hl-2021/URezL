@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS accounts CASCADE;
 CREATE TABLE accounts
 (
     id        serial primary key,
@@ -6,5 +7,26 @@ CREATE TABLE accounts
 
     createdAt timestamp without time zone default now(),
     updatedAt timestamp without time zone default now(),
+
     unique (login)
+);
+
+DROP TABLE IF EXISTS oldLinkByNewLink CASCADE;
+CREATE TABLE oldLinkByNewLink
+(
+    newLink varchar(255) primary key,
+    oldLink varchar(255) not null,
+
+    createdAt timestamp without time zone default now(),
+    updatedAt timestamp without time zone default now()
+);
+
+DROP TABLE IF EXISTS linksByAccountId CASCADE;
+CREATE TABLE linksByAccountId
+(
+    accountId int primary key,
+    link varchar(255) not null,
+
+    createdAt timestamp without time zone default now(),
+    updatedAt timestamp without time zone default now()
 );
