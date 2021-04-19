@@ -7,10 +7,9 @@ import (
 	"URezL/Internal/service/token"
 	"URezL/Internal/usecases/account"
 	"URezL/Internal/usecases/link"
-
-	"database/sql"
 	_ "github.com/lib/pq"
 
+	"encoding/json"
 	"flag"
 	"io/ioutil"
 	"net/http"
@@ -30,20 +29,28 @@ func main() {
 		panic(err)
 	}
 
-	//TODO: add config file
-	connStr := "user=postgres password=123455678 host=localhost dbname=postgres sslmode=disable"
-	conn, err := sql.Open("postgres", connStr)
+	filename := "cmd/config/config.postgres.json"
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	type Configuration struct {
+		ConnectionString string `json:"connectionString"`
+	}
+	config := Configuration{}
+	err = json.Unmarshal(file, &config)
 	if err != nil {
 		panic(err)
 	}
 
+	connStr := config.ConnectionString
 	accountUseCases := &account.UseCases{
-		AccountStorage: accountrepo.New(conn),
+		AccountStorage: accountrepo.New(connStr),
 		Auth:           a,
 	}
 
 	linkUseCases := &link.UseCases{
-		LinkStorage: linkrepo.New(conn),
+		LinkStorage: linkrepo.New(connStr),
 	}
 
 	service := httpapi.CreateApi(accountUseCases, linkUseCases)
