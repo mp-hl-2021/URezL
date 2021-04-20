@@ -27,13 +27,13 @@ func (m *Memory) AddLink (lnk link.Link) (link.Link, error) {
 		return link.Link{}, domain.ErrAlreadyExist
 	}
 	m.oldLinkByNewLink[lnk.ShortenLink] = lnk
-	if lnk.UserId != nil {
-		accountLinks, ok := m.linksByAccountId[*lnk.UserId]
+	if lnk.AccountId != nil {
+		accountLinks, ok := m.linksByAccountId[*lnk.AccountId]
 		if !ok {
 			accountLinks = make(map[string]link.Link)
 		}
 		accountLinks[lnk.ShortenLink] = lnk
-		m.linksByAccountId[*lnk.UserId] = accountLinks
+		m.linksByAccountId[*lnk.AccountId] = accountLinks
 	}
 	return  lnk, nil
 }
@@ -76,11 +76,11 @@ func (m *Memory) DeleteLink(lnk string, accountId string) error {
 	if !ok {
 		return domain.ErrNotFound
 	}
-	if l.UserId == nil || *l.UserId != accountId {
+	if l.AccountId == nil || *l.AccountId != accountId {
 		return domain.ErrPermissionDenied
 	}
 	delete(m.oldLinkByNewLink, lnk)
-	delete(m.linksByAccountId[*l.UserId], lnk)
+	delete(m.linksByAccountId[*l.AccountId], lnk)
 	return nil
 }
 
@@ -96,23 +96,23 @@ func (m *Memory) ChangeLink(oldLink string, newLink string, accountId string) er
 	if ok {
 		return domain.ErrAlreadyExist
 	}
-	if l.UserId == nil || *l.UserId != accountId {
+	if l.AccountId == nil || *l.AccountId != accountId {
 		return domain.ErrPermissionDenied
 	}
 	delete(m.oldLinkByNewLink, oldLink)
-	delete(m.linksByAccountId[*l.UserId], oldLink)
+	delete(m.linksByAccountId[*l.AccountId], oldLink)
 	changedLink := link.Link{
-		Link: l.Link,
+		Link:        l.Link,
 		ShortenLink: newLink,
-		UserId: l.UserId,
-		Lifetime: l.Lifetime,
+		AccountId:   l.AccountId,
+		Lifetime:    l.Lifetime,
 	}
 	m.oldLinkByNewLink[newLink] = changedLink
-	accountLinks, ok := m.linksByAccountId[*changedLink.UserId]
+	accountLinks, ok := m.linksByAccountId[*changedLink.AccountId]
 	if !ok {
 		accountLinks = make(map[string]link.Link)
 	}
 	accountLinks[changedLink.ShortenLink] = changedLink
-	m.linksByAccountId[*changedLink.UserId] = accountLinks
+	m.linksByAccountId[*changedLink.AccountId] = accountLinks
 	return nil
 }

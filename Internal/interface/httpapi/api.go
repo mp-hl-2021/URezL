@@ -72,6 +72,9 @@ func (a *Api) postLinkCut(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	shortenLink, err := a.LinkUseCases.LinkCut(l.Link, nil)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 	w.Write([]byte(shortenLink))
 	w.WriteHeader(http.StatusCreated)
 

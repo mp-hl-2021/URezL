@@ -5,10 +5,10 @@ import (
 )
 
 type Link struct {
-	Link string
+	Link        string
 	ShortenLink string
-	Lifetime time.Duration
-	UserId *string
+	Lifetime    *time.Duration
+	AccountId   *string
 }
 
 type Interface interface {

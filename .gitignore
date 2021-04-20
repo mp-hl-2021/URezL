@@ -18,3 +18,4 @@
 
 app.rsa
 app.rsa.pub
+config.*

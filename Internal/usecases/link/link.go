@@ -38,11 +38,12 @@ func (a *UseCases) GetLinkByShorten(lnk string) (string, error) {
 
 func (a *UseCases) LinkCut(lnk string, accountId *string) (string, error) {
 	shortenLink := generateShortenLink(a)
+	dur := 100 * time.Second
 	l, err := a.LinkStorage.AddLink(link.Link{
-			Link: lnk,
+			Link:        lnk,
 			ShortenLink: shortenLink,
-			Lifetime: 100 * time.Second,
-			UserId: accountId,
+			Lifetime:    &dur,
+			AccountId:   accountId,
 		})
 	if err != nil {
 		return "", err
@@ -60,10 +61,10 @@ func (a *UseCases) CustomLinkCut(lnk string, customName *string, lifetime *time.
 		lifetime = &tmp
 	}
 	l, err := a.LinkStorage.AddLink(link.Link{
-		Link: lnk,
+		Link:        lnk,
 		ShortenLink: *customName,
-		Lifetime: *lifetime,
-		UserId: &accountId,
+		Lifetime:    lifetime,
+		AccountId:   &accountId,
 	})
 	if err != nil {
 		return "", err
@@ -107,6 +108,7 @@ func generateShortenLink(a *UseCases) (hash string) {
 }
 
 func RandStringBytes(n int) string {
+	rand.Seed(time.Now().UTC().UnixNano())
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
