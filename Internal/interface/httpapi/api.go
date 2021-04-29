@@ -1,11 +1,13 @@
 package httpapi
 
 import (
+	"URezL/Internal/interface/prom"
 	"URezL/Internal/usecases/account"
 	"URezL/Internal/usecases/link"
 	"context"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"strings"
 	"time"
@@ -41,7 +43,8 @@ func (a *Api) Router() http.Handler {
 	router.HandleFunc("/control/links/{"+shortenLinkUrlPathKey+"}", a.authenticate(a.changeAddress)).Methods(http.MethodPatch)
 	router.HandleFunc("/{"+shortenLinkUrlPathKey+"}", a.redirect).Methods(http.MethodGet)
 
-
+	router.Handle("/metrics", promhttp.Handler())
+	router.Use(prom.Measurer())
 	return router
 }
 
