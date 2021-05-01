@@ -41,12 +41,14 @@ func (a *Api) Router() http.Handler {
 	router.HandleFunc("/control/links", a.authenticate(a.getLinks)).Methods(http.MethodGet)
 	router.HandleFunc("/control/links/{"+shortenLinkUrlPathKey+"}", a.authenticate(a.deleteLink)).Methods(http.MethodDelete)
 	router.HandleFunc("/control/links/{"+shortenLinkUrlPathKey+"}", a.authenticate(a.changeAddress)).Methods(http.MethodPatch)
+	router.Handle("/metrics", promhttp.Handler())
+
 	router.HandleFunc("/{"+shortenLinkUrlPathKey+"}", a.redirect).Methods(http.MethodGet)
 
-	router.Handle("/metrics", promhttp.Handler())
 	router.Use(prom.Measurer())
 	return router
 }
+
 
 func (a *Api) redirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
