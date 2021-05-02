@@ -4,12 +4,10 @@ import (
 	"URezL/Internal/interface/prom"
 	"URezL/Internal/usecases/account"
 	"URezL/Internal/usecases/link"
-	"context"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -46,6 +44,7 @@ func (a *Api) Router() http.Handler {
 	router.HandleFunc("/{"+shortenLinkUrlPathKey+"}", a.redirect).Methods(http.MethodGet)
 
 	router.Use(prom.Measurer())
+	router.Use(a.logger)
 	return router
 }
 
@@ -229,23 +228,5 @@ func (a *Api) changeAddress(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Address changed"))
 }
 
-func (a *Api) authenticate(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		bearHeader := r.Header.Get("Authorization")
-		strArr := strings.Split(bearHeader, " ")
-		if len(strArr) != 2 {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		token := strArr[1]
-		id, err := a.AccountUseCases.Authenticate(token)
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		ctx := context.WithValue(r.Context(), accountIdContextKey, id)
-		handler(w, r.WithContext(ctx))
-	}
-}
 
 
