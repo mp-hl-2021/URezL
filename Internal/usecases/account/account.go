@@ -4,8 +4,10 @@ import (
 	"URezL/Internal/domain/account"
 	"URezL/Internal/service/token"
 	"errors"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -34,6 +36,9 @@ type Interface interface {
 	Login(login, password string) (string, error)
 	Authenticate(token string) (string, error)
 	Logout() ()
+	RegisterLogger(f func(s1, s2 string) (Account, error)) func(s1, s2 string) (Account, error)
+	LoginLogger(f func(s1, s2 string) (string, error)) func(s1, s2 string) (string, error)
+	AuthenticateLogger(f func(s1 string) (string, error)) func(s1 string) (string, error)
 }
 
 type UseCases struct {
@@ -63,6 +68,15 @@ func (a *UseCases) Register(login string, password string) (Account, error) {
 	return Account{Id: acc.Id}, nil
 }
 
+func (a *UseCases) RegisterLogger(f func(s1, s2 string) (Account, error)) func(s1, s2 string) (Account, error) {
+	return func(s1, s2 string) (Account, error){
+		start := time.Now()
+		acc, ok := f(s1, s2)
+		fmt.Printf("method: Register; duration: %v; status: %s\n", time.Since(start), ok)
+		return acc, ok
+	}
+}
+
 func (a *UseCases) Login(login string, password string) (string, error) {
 	if err := validateLogin(login); err != nil {
 		return "", err
@@ -84,8 +98,26 @@ func (a *UseCases) Login(login string, password string) (string, error) {
 	return token, err
 }
 
+func (a *UseCases) LoginLogger(f func(s1, s2 string) (string, error)) func(s1, s2 string) (string, error) {
+	return func(s1, s2 string) (string, error){
+		start := time.Now()
+		s, ok := f(s1, s2)
+		fmt.Printf("method: Login; duration: %v; status: %s\n", time.Since(start), ok)
+		return s, ok
+	}
+}
+
 func (a *UseCases) Authenticate(token string) (string, error) {
 	return a.Auth.UserIdByToken(token)
+}
+
+func (a *UseCases) AuthenticateLogger(f func(s1 string) (string, error)) func(s1 string) (string, error) {
+	return func(s1 string) (string, error){
+		start := time.Now()
+		s, ok := f(s1)
+		fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		return s, ok
+	}
 }
 
 func (a *UseCases) Logout() () {
