@@ -49,7 +49,12 @@ func (a *UseCases) GetLinkByShortenLogger(f func(s1 string) (string, error)) fun
 	return func(s1 string) (string, error){
 		start := time.Now()
 		s, ok := f(s1)
-		fmt.Printf("method: GetLinkByShorten; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return s, ok
 	}
 }
@@ -73,7 +78,12 @@ func (a *UseCases) LinkCutLogger(f func(s1 string, s2 *string) (string, error)) 
 	return func(s1 string, s2 *string) (string, error){
 		start := time.Now()
 		s, ok := f(s1, s2)
-		fmt.Printf("method: LinkCut; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return s, ok
 	}
 }
@@ -106,7 +116,12 @@ func (a *UseCases) CustomLinkCutLogger(f func(s1 string, s2 *string,
 	return func(s1 string, s2 *string, t *time.Duration, s3 string) (string, error){
 		start := time.Now()
 		s, ok := f(s1, s2, t, s3)
-		fmt.Printf("method: CustomLinkCut; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return s, ok
 	}
 }
@@ -120,7 +135,12 @@ func (a *UseCases) DeleteLinkLogger(f func(s1, s2 string) error) func(s1, s2 str
 	return func(s1, s2 string) error{
 		start := time.Now()
 		ok := f(s1, s2)
-		fmt.Printf("method: DeleteLink; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return ok
 	}
 }
@@ -134,7 +154,12 @@ func (a *UseCases) ChangeAddressLogger(f func(s1, s2, s3 string) error) func(s1,
 	return func(s1, s2, s3 string) error{
 		start := time.Now()
 		ok := f(s1, s2, s3)
-		fmt.Printf("method: ChangeAddress; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return ok
 	}
 }
@@ -158,7 +183,12 @@ func (a *UseCases) GetLinksLogger(f func(s1 string) ([]Link, error)) func(s1 str
 	return func(s1 string) ([]Link, error){
 		start := time.Now()
 		l, ok := f(s1)
-		fmt.Printf("method: GetLinks; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return l, ok
 	}
 }

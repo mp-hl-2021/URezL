@@ -72,7 +72,12 @@ func (a *UseCases) RegisterLogger(f func(s1, s2 string) (Account, error)) func(s
 	return func(s1, s2 string) (Account, error){
 		start := time.Now()
 		acc, ok := f(s1, s2)
-		fmt.Printf("method: Register; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return acc, ok
 	}
 }
@@ -102,7 +107,12 @@ func (a *UseCases) LoginLogger(f func(s1, s2 string) (string, error)) func(s1, s
 	return func(s1, s2 string) (string, error){
 		start := time.Now()
 		s, ok := f(s1, s2)
-		fmt.Printf("method: Login; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return s, ok
 	}
 }
@@ -115,7 +125,12 @@ func (a *UseCases) AuthenticateLogger(f func(s1 string) (string, error)) func(s1
 	return func(s1 string) (string, error){
 		start := time.Now()
 		s, ok := f(s1)
-		fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		if ok == nil{
+			fmt.Printf("method: Authenticate; duration: %v; status: OK\n", time.Since(start))
+
+		} else {
+			fmt.Printf("method: Authenticate; duration: %v; status: %s\n", time.Since(start), ok)
+		}
 		return s, ok
 	}
 }
