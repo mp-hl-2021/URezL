@@ -1,13 +1,13 @@
 package httpapi
 
 import (
+	"URezL/Internal/interface/prom"
 	"URezL/Internal/usecases/account"
 	"URezL/Internal/usecases/link"
-	"context"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -39,11 +39,15 @@ func (a *Api) Router() http.Handler {
 	router.HandleFunc("/control/links", a.authenticate(a.getLinks)).Methods(http.MethodGet)
 	router.HandleFunc("/control/links/{"+shortenLinkUrlPathKey+"}", a.authenticate(a.deleteLink)).Methods(http.MethodDelete)
 	router.HandleFunc("/control/links/{"+shortenLinkUrlPathKey+"}", a.authenticate(a.changeAddress)).Methods(http.MethodPatch)
+	router.Handle("/metrics", promhttp.Handler())
+
 	router.HandleFunc("/{"+shortenLinkUrlPathKey+"}", a.redirect).Methods(http.MethodGet)
 
-
+	router.Use(prom.Measurer())
+	router.Use(a.logger)
 	return router
 }
+
 
 func (a *Api) redirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -52,7 +56,7 @@ func (a *Api) redirect(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	old, err := a.LinkUseCases.GetLinkByShorten(lnk)
+	old, err := a.LinkUseCases.GetLinkByShortenLogger(a.LinkUseCases.GetLinkByShorten)(lnk)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -71,7 +75,7 @@ func (a *Api) postLinkCut(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	shortenLink, err := a.LinkUseCases.LinkCut(l.Link, nil)
+	shortenLink, err := a.LinkUseCases.LinkCutLogger(a.LinkUseCases.LinkCut)(l.Link, nil)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -98,7 +102,8 @@ func (a *Api) postCustomLink(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	customLink, err := a.LinkUseCases.CustomLinkCut(cl.Link, cl.CustomName, cl.Lifetime, accountId)
+	customLink, err := a.LinkUseCases.CustomLinkCutLogger(
+		a.LinkUseCases.CustomLinkCut)(cl.Link, cl.CustomName, cl.Lifetime, accountId)
 	w.Write([]byte(customLink))
 	w.WriteHeader(http.StatusCreated)
 }
@@ -114,7 +119,7 @@ func (a *Api) postLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	token, err := a.AccountUseCases.Login(l.Username, l.Password)
+	token, err := a.AccountUseCases.LoginLogger(a.AccountUseCases.Login)(l.Username, l.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -134,7 +139,7 @@ func (a *Api) postRegister(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	acc, err := a.AccountUseCases.Register(reg.Username, reg.Password)
+	acc, err := a.AccountUseCases.RegisterLogger(a.AccountUseCases.Register)(reg.Username, reg.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -159,7 +164,7 @@ func (a *Api) getLinks(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	links, err := a.LinkUseCases.GetLinks(accountId)
+	links, err := a.LinkUseCases.GetLinksLogger(a.LinkUseCases.GetLinks)(accountId)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -189,7 +194,7 @@ func (a *Api) deleteLink(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err := a.LinkUseCases.DeleteLink(lnk, accountId)
+	err := a.LinkUseCases.DeleteLinkLogger(a.LinkUseCases.DeleteLink)(lnk, accountId)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -215,7 +220,7 @@ func (a *Api) changeAddress(w http.ResponseWriter, r *http.Request) {
 	}
 	vars := mux.Vars(r)
 	lnk, ok := vars[shortenLinkUrlPathKey]
-	err = a.LinkUseCases.ChangeAddress(lnk, ca.NewLink, accountId)
+	err = a.LinkUseCases.ChangeAddressLogger(a.LinkUseCases.ChangeAddress)(lnk, ca.NewLink, accountId)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -224,23 +229,5 @@ func (a *Api) changeAddress(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Address changed"))
 }
 
-func (a *Api) authenticate(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		bearHeader := r.Header.Get("Authorization")
-		strArr := strings.Split(bearHeader, " ")
-		if len(strArr) != 2 {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		token := strArr[1]
-		id, err := a.AccountUseCases.Authenticate(token)
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		ctx := context.WithValue(r.Context(), accountIdContextKey, id)
-		handler(w, r.WithContext(ctx))
-	}
-}
 
 
