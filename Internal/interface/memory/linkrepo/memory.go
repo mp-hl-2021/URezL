@@ -116,3 +116,20 @@ func (m *Memory) ChangeLink(oldLink string, newLink string, accountId string) er
 	m.linksByAccountId[*changedLink.AccountId] = accountLinks
 	return nil
 }
+
+func (m *Memory) SetBad(lnk string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	l, ok := m.oldLinkByNewLink[lnk]
+	if !ok {
+		return domain.ErrNotFound
+	}
+	m.oldLinkByNewLink[lnk] = link.Link{
+		Link:        l.Link,
+		ShortenLink: l.ShortenLink,
+		AccountId:   l.AccountId,
+		Lifetime:    l.Lifetime,
+		IsBad:       true,
+	}
+	return nil
+}

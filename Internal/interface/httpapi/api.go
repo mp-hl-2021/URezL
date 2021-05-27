@@ -5,6 +5,7 @@ import (
 	"URezL/Internal/usecases/account"
 	"URezL/Internal/usecases/link"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
@@ -17,15 +18,23 @@ const (
 	shortenLinkUrlPathKey = "shorten_link"
 )
 
+type RedirectCheck struct {
+	l string
+	n string
+}
+
+
 type Api struct {
 	AccountUseCases account.Interface
 	LinkUseCases    link.Interface
+	InputChannel    chan<- RedirectCheck
 }
 
-func CreateApi(a account.Interface, l link.Interface) *Api {
+func CreateApi(a account.Interface, l link.Interface, ch chan<- RedirectCheck) *Api {
 	return &Api{
 		AccountUseCases: a,
 		LinkUseCases: l,
+		InputChannel: ch,
 	}
 }
 
@@ -61,6 +70,9 @@ func (a *Api) redirect(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	go func() {
+		a.InputChannel <- RedirectCheck{old, lnk}
+	}()
 	http.Redirect(w, r, old, http.StatusSeeOther)
 }
 
@@ -229,5 +241,32 @@ func (a *Api) changeAddress(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Address changed"))
 }
 
+func CheckLinks(ch <-chan RedirectCheck) <-chan RedirectCheck {
+	out := make(chan RedirectCheck)
+	go func() {
+		for {
+			select {
+			case c := <-ch:
+				_, err := http.Get(c.l)
+				if err != nil {
+					out <- c
+				}
+			default:
+				close(out)
+				return
+			}
+		}
+	}()
+	return out
+}
+
+func SetBad(ch <-chan RedirectCheck, l link.Interface) {
+	go func() {
+		for c := range ch {
+			fmt.Println("Setting Bad")
+			l.SetBad(c.n)
+		}
+	}()
+}
 
 
