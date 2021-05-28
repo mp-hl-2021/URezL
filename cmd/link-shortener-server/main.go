@@ -64,7 +64,7 @@ func main() {
 	go func() {
 		for _ = range time.Tick(time.Minute) {
 			out := httpapi.CheckLinks(ch)
-			httpapi.SetBad(out, service.LinkUseCases)
+			httpapi.SetNotWorking(out, service.LinkUseCases)
 		}
 	}()
 

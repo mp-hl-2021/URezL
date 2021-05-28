@@ -18,7 +18,7 @@ const queryAddLink = `
 	INSERT INTO oldLinkByNewLink(
 		newLink,
 		oldLink,
-		isBad
+		working
 	) VALUES ($1, $2, TRUE)
 `
 
@@ -28,7 +28,7 @@ const queryAddLinkWithUser = `
 		oldLink,
 	    lifetime,
 		accountId,
-		isBad
+		working
 	) VALUES ($1, $2, $3, $4, TRUE)
 `
 
@@ -172,13 +172,13 @@ func (p *Postgres) ChangeLink(oldLink string, newLink string, accountId string) 
 	return nil
 }
 
-const querySetBad = `
+const querySetNotWorking = `
 	UPDATE oldLinkByNewLink
-	SET isBad = FALSE
+	SET working = FALSE
 	WHERE newLink = $1
 `
-func (p *Postgres) SetBad(link string) error {
-	row := p.conn.QueryRow(querySetBad, link)
+func (p *Postgres) SetNotWorking(link string) error {
+	row := p.conn.QueryRow(querySetNotWorking, link)
 	err := row.Scan()
 	if err != sql.ErrNoRows {
 		return err

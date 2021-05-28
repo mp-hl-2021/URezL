@@ -117,7 +117,7 @@ func (m *Memory) ChangeLink(oldLink string, newLink string, accountId string) er
 	return nil
 }
 
-func (m *Memory) SetBad(lnk string) error {
+func (m *Memory) SetNotWorking(lnk string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	l, ok := m.oldLinkByNewLink[lnk]
@@ -129,7 +129,7 @@ func (m *Memory) SetBad(lnk string) error {
 		ShortenLink: l.ShortenLink,
 		AccountId:   l.AccountId,
 		Lifetime:    l.Lifetime,
-		IsBad:       true,
+		Working:       true,
 	}
 	return nil
 }

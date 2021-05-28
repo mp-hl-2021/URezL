@@ -260,11 +260,11 @@ func CheckLinks(ch <-chan RedirectCheck) <-chan RedirectCheck {
 	return out
 }
 
-func SetBad(ch <-chan RedirectCheck, l link.Interface) {
+func SetNotWorking(ch <-chan RedirectCheck, l link.Interface) {
 	go func() {
 		for c := range ch {
 			fmt.Println("Setting Bad")
-			l.SetBad(c.n)
+			l.SetNotWorking(c.n)
 		}
 	}()
 }
