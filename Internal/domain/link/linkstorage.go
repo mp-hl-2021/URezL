@@ -9,6 +9,7 @@ type Link struct {
 	ShortenLink string
 	Lifetime    *time.Duration
 	AccountId   *string
+	Working		bool
 }
 
 type Interface interface {
@@ -18,4 +19,5 @@ type Interface interface {
 	CheckLinkExists(link string) bool
 	DeleteLink(link string, accountId string) error
 	ChangeLink(oldLink string, newLink string, accountId string) error
+	SetNotWorking(link string) error
 }

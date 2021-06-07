@@ -31,6 +31,7 @@ type Interface interface {
 	DeleteLinkLogger(f func(s1, s2 string) error) func(s1, s2 string) error
 	ChangeAddressLogger(f func(s1, s2, s3 string) error) func(s1, s2, s3 string) error
 	GetLinksLogger(f func(s1 string) ([]Link, error)) func(s1 string) ([]Link, error)
+	SetNotWorking(lnk string) error
 }
 
 type UseCases struct{
@@ -191,6 +192,11 @@ func (a *UseCases) GetLinksLogger(f func(s1 string) ([]Link, error)) func(s1 str
 		}
 		return l, ok
 	}
+}
+
+func (a *UseCases) SetNotWorking(lnk string) error {
+	err := a.LinkStorage.SetNotWorking(lnk)
+	return err
 }
 
 func generateShortenLink(a *UseCases) (hash string) {

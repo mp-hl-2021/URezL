@@ -57,7 +57,16 @@ func main() {
 		LinkStorage: linkrepo.New(conn),
 	}
 
-	service := httpapi.CreateApi(accountUseCases, linkUseCases)
+	ch := make(chan httpapi.RedirectCheck)
+
+	service := httpapi.CreateApi(accountUseCases, linkUseCases, ch)
+
+	go func() {
+		for _ = range time.Tick(time.Minute) {
+			out := httpapi.CheckLinks(ch)
+			httpapi.SetNotWorking(out, service.LinkUseCases)
+		}
+	}()
 
 	server := http.Server{
 		Addr:         ":8080",
